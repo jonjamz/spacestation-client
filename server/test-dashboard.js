@@ -1,4 +1,4 @@
 Meteor.startup(function () {
   // Load dashboard
-  dashboard.connect('1234qwer');
+  SpaceStation.connect('1234qwer');
 });
