@@ -20,54 +20,40 @@ SpaceStation = (function () {
     console.log("Key set to " + key);
   }
 
-  function _startConnectRoutine() {
-    if (!_config.connectRoutineStarted) {
-      Deps.autorun(function () {
-        if (_config.ddpHandle.status &&
-          _config.ddpHandle.status().status) {
+    function _startConnectLogs() {
+        if (!_config.connectLogsStarted) {
+            Deps.autorun(function () {
+                if (_config.ddpHandle.status &&
+                    _config.ddpHandle.status().status) {
+                    console.log("remote dashboard: " +
+                        _config.ddpHandle.status().status);
+                }
+            });
+            _config.connectLogsStarted = true;
+        }
+    }
 
-          // Print reactive connect logs to console
-          console.log("remote dashboard: " +
-            _config.ddpHandle.status().status);
+    function _connectToRemoteDashboard() {
+        _config.ddpHandle = DDP.connect(_config.dashboardServer);
 
-          // On connect, send any cached logs
-          if (_config.ddpHandle.status().status === 'connected') {
+        // On reconnect, send any cached logs
+        _config.ddpHandle.onReconnect = function() {
             var logCacheLength = logCache.length;
             if (!!logCacheLength) {
-              console.log("Sending " + logCacheLength +
-                " cached logs to remote dashboard");
+                console.log("Sending " + logCacheLength +
+                    " cached logs to remote dashboard");
 
-              for (var i = logCacheLength - 1; i >= 0; i--) {
-                _remoteLog(logCache[i]);
-              };
+                for (var i = logCacheLength - 1; i >= 0; i--) {
+                    _remoteLog(logCache[i]);
+                };
 
-              logCache.length = 0;
+                logCache.length = 0;
             }
-          }
         }
-      });
-      _config.connectRoutineStarted = true;
+
+        // Print reactive connect logs to console
+        _startConnectLogs();
     }
-  }
-
-  function _connectToRemoteDashboard() {
-    _config.ddpHandle = DDP.connect(_config.dashboardServer);
-    _config.ddpHandle.onReconnect = function() {
-        console.log("remote dashboard: " +_config.ddpHandle.status().status);
-        var logCacheLength = logCache.length;
-        if (!!logCacheLength) {
-            console.log("Sending " + logCacheLength +
-                " cached logs to remote dashboard");
-
-            for (var i = logCacheLength - 1; i >= 0; i--) {
-                _remoteLog(logCache[i]);
-            };
-
-            logCache.length = 0;
-        }
-    }
-    console.log("remote dashboard: " +_config.ddpHandle.status().status);
-  }
 
   function connect(key) {
     _setPrivateKey(key);
