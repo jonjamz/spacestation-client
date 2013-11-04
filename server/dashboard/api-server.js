@@ -12,7 +12,7 @@ SpaceStation = (function () {
         dashboardServer: '127.0.0.1:3001',
         privateKey: '',
         ddpHandle: {},
-        connectLogStarted: false
+        connectLogsStarted: false
       };
 
   function _setPrivateKey(key) {
