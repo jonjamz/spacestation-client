@@ -117,6 +117,7 @@ SpaceStation = (function () {
   return {
     connect: connect,
     status: getConnectStatus, // Reactive!
+    log: log,
     time: time,
     timeEnd: timeEnd
   }
