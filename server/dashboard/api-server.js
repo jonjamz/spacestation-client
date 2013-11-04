@@ -68,25 +68,51 @@ SpaceStation = (function () {
 
   // Log to remote server
   // Decorates logs with timestamp, caches if not connected
-  function _remoteLog(data) {
-    check(data, Object);
-    data.timestamp = (new Date()).getTime();
+  function _remoteLog(obj) {
     if (getConnectStatus().connected) {
-        _config.ddpHandle.call('remoteLog', data);
+      _config.ddpHandle.call('remoteLog', _config.privateKey, obj);
     } else {
-      logCache.push(data);
-
+      logCache.push(obj);
     }
   }
 
-  function push(data, userId, userName, userEmail) {
+  function push(type, message, data, userData) {
+    check(type, String);
+    check(message, String);
+    check(data, Match.Optional(Object));
+    check(userData, Match.Optional(Object));
+
+    if (!data) {
+      data = {};
+    }
+
     // Add user params to data if they exist
-    data._user = {}
-    if (userId != null) data._user._id = userId;
-    if (userName != null) data._user.username = userName;
-    if (userEmail != null) data._user.userEmail = userEmail;
-    _remoteLog(data);
+    if (userData != null) data._user = userData;
+    data._timestamp = new Date();
+
+    obj = {
+      type: type,
+      message: message,
+      data: data
+    };
+
+    _remoteLog(obj);
   }
+
+  // Meteor Accounts automatic user add
+  Meteor.methods({
+    SpaceStation__meteorAccounts__push: function (type, message, data) {
+      var userData = {}, user;
+      if (this.userId) {
+        user = Meteor.users.findOne(this.userId);
+        userData._id = this.userId;
+        userData.username = user.username;
+        userData.email = user.emails[0].address;
+      }
+      SpaceStation.push(type, message, data, userData);
+    },
+    SpaceStation__meteorAccounts__query: function () {} // Figure it out!
+  });
 
 
 

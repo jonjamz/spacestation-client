@@ -4,6 +4,8 @@ Meteor.startup(function () {
       authKey: '1234qwer'
   });
   Meteor.setInterval(function () {
-    SpaceStation.push({message: 'hello'});
+    SpaceStation.push('test', 'hello', {
+      animals: ['zebra', 'dog']
+    });
   }, 2000);
 });
