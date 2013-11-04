@@ -52,7 +52,19 @@ SpaceStation = (function () {
 
   function _connectToRemoteDashboard() {
     _config.ddpHandle = DDP.connect(_config.dashboardServer);
-    _startConnectRoutine();
+    _config.ddpHandle.onReconnect = function() {
+        var logCacheLength = logCache.length;
+        if (!!logCacheLength) {
+            console.log("Sending " + logCacheLength +
+                " cached logs to remote dashboard");
+
+            for (var i = logCacheLength - 1; i >= 0; i--) {
+                _remoteLog(logCache[i]);
+            };
+
+            logCache.length = 0;
+        }
+    }
   }
 
   function connect(key) {
@@ -72,9 +84,10 @@ SpaceStation = (function () {
     check(data, Object);
     data.timestamp = (new Date()).getTime();
     if (getConnectStatus().connected) {
-      _config.ddpHandle.call('remoteLog', data);
+        _config.ddpHandle.call('remoteLog', data);
     } else {
       logCache.push(data);
+
     }
   }
 
