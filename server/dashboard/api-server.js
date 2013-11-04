@@ -9,7 +9,7 @@ SpaceStation = (function () {
 
   var logCache = [],
       _config = {
-        dashboardServer: '127.0.0.1:3001',
+        dashboardServer: '',
         privateKey: '',
         ddpHandle: {},
         connectRoutineStarted: false
@@ -55,8 +55,9 @@ SpaceStation = (function () {
         _startConnectLogs();
     }
 
-  function connect(key) {
-    _setPrivateKey(key);
+  function connect(params) {
+    _config.dashboardServer = params.serverAddress;
+    _setPrivateKey(params.authKey);
     _connectToRemoteDashboard();
   }
 
