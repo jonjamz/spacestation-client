@@ -21,38 +21,38 @@ SpaceStation = (function () {
   }
 
     function _startConnectLogs() {
-        if (!_config.connectLogsStarted) {
-            Deps.autorun(function () {
-                if (_config.ddpHandle.status &&
-                    _config.ddpHandle.status().status) {
-                    console.log("remote dashboard: " +
-                        _config.ddpHandle.status().status);
-                }
-            });
-            _config.connectLogsStarted = true;
-        }
+      if (!_config.connectLogsStarted) {
+        Deps.autorun(function () {
+          if (_config.ddpHandle.status &&
+          _config.ddpHandle.status().status) {
+            console.log("remote dashboard: " +
+              _config.ddpHandle.status().status);
+          }
+        });
+        _config.connectLogsStarted = true;
+      }
     }
 
     function _connectToRemoteDashboard() {
-        _config.ddpHandle = DDP.connect(_config.dashboardServer);
+      _config.ddpHandle = DDP.connect(_config.dashboardServer);
 
-        // On reconnect, send any cached logs
-        _config.ddpHandle.onReconnect = function() {
-            var logCacheLength = logCache.length;
-            if (!!logCacheLength) {
-                console.log("Sending " + logCacheLength +
-                    " cached logs to remote dashboard");
+      // On reconnect, send any cached logs
+      _config.ddpHandle.onReconnect = function() {
+        var logCacheLength = logCache.length;
+        if (!!logCacheLength) {
+          console.log("Sending " + logCacheLength +
+            " cached logs to remote dashboard");
 
-                for (var i = logCacheLength - 1; i >= 0; i--) {
-                    _remoteLog(logCache[i]);
-                };
+          for (var i = logCacheLength - 1; i >= 0; i--) {
+            _remoteLog(logCache[i]);
+          };
 
-                logCache.length = 0;
-            }
+          logCache.length = 0;
         }
+      }
 
-        // Print reactive connect logs to console
-        _startConnectLogs();
+      // Print reactive connect logs to console
+      _startConnectLogs();
     }
 
   function connect(params) {
@@ -76,19 +76,16 @@ SpaceStation = (function () {
     }
   }
 
-  function push(type, message, data, userData) {
+  function push(type, message, data) {
     check(type, String);
     check(message, String);
     check(data, Match.Optional(Object));
-    check(userData, Match.Optional(Object));
 
-    if (!data) {
+    if (!data)
       data = {};
-    }
 
-    // Add user params to data if they exist
-    if (userData != null) data._user = userData;
-    data._timestamp = new Date();
+    if (!data._timestamp)
+      data._timestamp = new Date();
 
     obj = {
       type: type,
@@ -102,14 +99,19 @@ SpaceStation = (function () {
   // Meteor Accounts automatic user add
   Meteor.methods({
     SpaceStation__meteorAccounts__push: function (type, message, data) {
-      var userData = {}, user;
-      if (this.userId) {
-        user = Meteor.users.findOne(this.userId);
-        userData._id = this.userId;
-        userData.username = user.username;
-        userData.email = user.emails[0].address;
+
+      if (!data) {
+        data = {};
       }
-      SpaceStation.push(type, message, data, userData);
+
+      if (this.userId) {
+        var user = Meteor.users.findOne(this.userId);
+        data._user = {};
+        data._user._id = this.userId;
+        data._user.username = user.username;
+        data._user.email = user.emails[0].address;
+      }
+      SpaceStation.push(type, message, data);
     },
     SpaceStation__meteorAccounts__query: function () {} // Figure it out!
   });
