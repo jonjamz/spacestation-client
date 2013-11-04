@@ -38,7 +38,7 @@ SpaceStation = (function () {
                 " cached logs to remote dashboard");
 
               for (var i = logCacheLength - 1; i >= 0; i--) {
-                _log(logCache[i]);
+                _remoteLog(logCache[i]);
               };
 
               logCache.length = 0;
