@@ -53,6 +53,7 @@ SpaceStation = (function () {
   function _connectToRemoteDashboard() {
     _config.ddpHandle = DDP.connect(_config.dashboardServer);
     _config.ddpHandle.onReconnect = function() {
+        console.log("remote dashboard: " +_config.ddpHandle.status().status);
         var logCacheLength = logCache.length;
         if (!!logCacheLength) {
             console.log("Sending " + logCacheLength +
@@ -65,6 +66,7 @@ SpaceStation = (function () {
             logCache.length = 0;
         }
     }
+    console.log("remote dashboard: " +_config.ddpHandle.status().status);
   }
 
   function connect(key) {
