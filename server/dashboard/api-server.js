@@ -78,7 +78,7 @@ SpaceStation = (function () {
     }
   }
 
-  function log(data, userId, userName, userEmail) {
+  function push(data, userId, userName, userEmail) {
     // Add user params to data if they exist
     data._user = {}
     if (userId != null) data._user._id = userId;
@@ -117,7 +117,7 @@ SpaceStation = (function () {
   return {
     connect: connect,
     status: getConnectStatus, // Reactive!
-    log: log,
+    push: push,
     time: time,
     timeEnd: timeEnd
   }
